@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fintech Customer Experience Benchmarking — CFPB Intelligence</title>
+  <script type="module" src="https://embedding.tableauusercontent.com/tableau.embedding.3.latest.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f5f7;
+      --surface: #ffffff;
+      --header-bg: #0f1923;
+      --header-border: #1e2d3d;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-light: #dbeafe;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --border: #e5e7eb;
+      --chip-bg: #f0f4ff;
+      --chip-border: #c7d7fd;
+      --chip-text: #1e40af;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --radius: 10px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ─────────────────────────────── */
+    header {
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--header-border);
+      padding: 0 32px;
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 16px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f9fafb;
+      letter-spacing: -0.01em;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-blue {
+      background: rgba(37, 99, 235, 0.25);
+      color: #93c5fd;
+      border: 1px solid rgba(37, 99, 235, 0.4);
+    }
+
+    .badge-green {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    /* ── Subheader ───────────────────────────── */
+    .subheader {
+      background: var(--header-bg);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 32px 16px;
+    }
+
+    .subheader-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .subheader-text {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+
+    .subheader-divider {
+      color: #374151;
+    }
+
+    .subheader-stat {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.2);
+    }
+
+    /* ── Main layout ─────────────────────────── */
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Agent search bar ────────────────────── */
+    .agent-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .agent-header {
+      padding: 14px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .agent-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .agent-label svg {
+      width: 14px;
+      height: 14px;
+      color: var(--accent);
+    }
+
+    .agent-status {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .agent-input-row {
+      padding: 10px 20px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .agent-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .agent-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--accent);
+      pointer-events: none;
+    }
+
+    #agent-input {
+      width: 100%;
+      padding: 11px 44px 11px 42px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #fafafa;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    #agent-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    #agent-input:focus {
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .input-suffix {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    #agent-submit {
+      padding: 0 18px;
+      height: 42px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+
+    #agent-submit:hover { background: var(--accent-hover); }
+    #agent-submit:active { transform: scale(0.97); }
+
+    #agent-submit svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .agent-chips {
+      padding: 0 20px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--chip-text);
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      border-radius: 100px;
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+      user-select: none;
+    }
+
+    .chip:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+
+    /* ── Agent response ───────────────────────── */
+    #agent-response {
+      margin: 0 20px 14px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+    }
+
+    #agent-response.visible { display: block; }
+
+    .response-inner {
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .response-inner.success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .response-inner.error {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+    }
+
+    .response-inner.info {
+      background: var(--accent-light);
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+    }
+
+    .response-icon {
+      flex-shrink: 0;
+      margin-top: 1px;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Viz container ────────────────────────── */
+    .viz-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .viz-toolbar {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .viz-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .viz-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .viz-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .viz-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg);
+      color: var(--text-primary);
+    }
+
+    .icon-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    #reset-btn {
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      padding: 0 12px;
+      height: 32px;
+      width: auto;
+      gap: 5px;
+      color: var(--text-secondary);
+    }
+
+    #reset-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .viz-embed-wrap {
+      width: 100%;
+      overflow: hidden;
+      background: #fafafa;
+    }
+
+    tableau-viz {
+      display: block;
+      width: 100%;
+    }
+
+    /* ── Footer ──────────────────────────────── */
+    footer {
+      padding: 20px 32px 32px;
+    }
+
+    .footer-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .footer-text a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .footer-text a:hover { color: var(--accent); }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.12s;
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── Loading overlay ─────────────────────── */
+    .viz-loading {
+      position: relative;
+    }
+
+    .viz-loading::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(244,245,247,0.6);
+      backdrop-filter: blur(2px);
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .viz-loading.loading::after { opacity: 1; }
+
+    /* ── Auth states ─────────────────────────── */
+    .viz-auth-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 80px 20px;
+      min-height: 220px;
+      background: #fafafa;
+    }
+
+    .viz-auth-spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .viz-auth-state p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .viz-auth-state a {
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .viz-auth-state a:hover { text-decoration: underline; }
+
+    /* ── Responsive ──────────────────────────── */
+    @media (max-width: 768px) {
+      header, .subheader { padding: 0 16px; }
+      .subheader { padding-bottom: 12px; }
+      main { padding: 16px; gap: 16px; }
+      footer { padding: 16px 16px 24px; }
+      .header-meta { display: none; }
+      .agent-chips .chip:nth-child(n+5) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <span class="header-title">Fintech Customer Experience Benchmarking</span>
+    </div>
+    <div class="header-meta">
+      <span class="badge badge-blue">Tableau Plus</span>
+      <span class="badge badge-green">Live</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── Subheader ──────────────────────────────── -->
+<div class="subheader">
+  <div class="subheader-inner">
+    <span class="subheader-text">
+      Competitive complaint analysis across 5 financial institutions
+    </span>
+    <span class="subheader-divider">·</span>
+    <span class="subheader-text">CFPB Consumer Complaint Database</span>
+    <span class="subheader-divider">·</span>
+    <span class="subheader-text">Chase · Ally · Capital One · Wells Fargo · SoFi</span>
+    <span class="subheader-divider">·</span>
+    <div class="subheader-stat">
+      <span class="dot"></span>
+      <span>Updated daily</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main ───────────────────────────────────── -->
+<main>
+
+  <!-- Agent search panel -->
+  <div class="agent-panel">
+    <div class="agent-header">
+      <div class="agent-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+          <circle cx="7.5" cy="14.5" r="1.5"/>
+          <circle cx="16.5" cy="14.5" r="1.5"/>
+        </svg>
+        Tableau Agent
+      </div>
+      <span class="agent-status" id="agent-status">Ready</span>
+    </div>
+
+    <div class="agent-input-row">
+      <div class="agent-input-wrap">
+        <svg class="agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          id="agent-input"
+          type="text"
+          placeholder="Ask Tableau Agent... e.g., 'Show me Chase credit card complaints'"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <span class="input-suffix">↵</span>
+      </div>
+      <button id="agent-submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Run
+      </button>
+    </div>
+
+    <div class="agent-chips">
+      <span class="chip" data-query="Show me Chase credit cards">Chase credit cards</span>
+      <span class="chip" data-query="Compare Chase and Ally">Compare Chase &amp; Ally</span>
+      <span class="chip" data-query="Wells Fargo checking accounts">Wells Fargo checking</span>
+      <span class="chip" data-query="SoFi complaints">SoFi</span>
+      <span class="chip" data-query="2024 complaints">2024</span>
+      <span class="chip" data-query="money transfer issues">Money transfer</span>
+      <span class="chip" data-query="reset">Reset filters</span>
+    </div>
+
+    <div id="agent-response"></div>
+  </div>
+
+  <!-- Tableau viz panel -->
+  <div class="viz-panel">
+    <div class="viz-toolbar">
+      <div class="viz-toolbar-left">
+        <span class="viz-title">Dashboard 1</span>
+        <span class="viz-subtitle">— CFPB Fintech Competitive Analysis</span>
+      </div>
+      <div class="viz-actions">
+        <button class="icon-btn" id="reset-btn" title="Clear all filters" onclick="resetFilters()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-3.21"/>
+          </svg>
+          Reset
+        </button>
+      </div>
+    </div>
+    <div class="viz-embed-wrap" id="viz-wrap">
+      <div id="viz-auth-loading" class="viz-auth-state">
+        <div class="viz-auth-spinner"></div>
+        <p>Authenticating with Tableau...</p>
+      </div>
+      <div id="viz-auth-error" class="viz-auth-state" style="display:none;">
+        <p>Authentication required</p>
+        <a href="https://us-east-1.online.tableau.com/#/site/mwatson1983-cc5dcbbf4e/home" target="_blank" rel="noopener">Sign in to Tableau Cloud directly →</a>
+      </div>
+      <tableau-viz
+        id="tableauViz"
+        src="https://us-east-1.online.tableau.com/views/CFPBProject/Dashboard1"
+        toolbar="hidden"
+        hide-tabs
+        style="width:100%; height:900px; display:none;"
+      ></tableau-viz>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Footer ─────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <p class="footer-text">
+      Data source: <a href="https://www.consumerfinance.gov/data-research/consumer-complaints/" target="_blank" rel="noopener">CFPB Consumer Complaint Database</a>
+      &nbsp;·&nbsp; Updated daily &nbsp;·&nbsp; Not affiliated with any financial institution
+    </p>
+    <div class="footer-links">
+      <a href="https://www.consumerfinance.gov/data-research/consumer-complaints/" target="_blank" rel="noopener">CFPB Data</a>
+      <a href="https://help.tableau.com/current/api/embedding_api/en-us/index.html" target="_blank" rel="noopener">Tableau Embedding API</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Tableau JWT auth ─────────────────────────────────────────────────────
+
+  const viz = document.getElementById('tableauViz');
+
+  async function initTableauAuth() {
+    try {
+      const res = await fetch('https://cfpb.vercel.app/api/tableau-token');
+      if (!res.ok) throw new Error('Server returned ' + res.status);
+      const { token } = await res.json();
+      viz.setAttribute('token', token);
+      viz.style.display = '';
+      document.getElementById('viz-auth-loading').style.display = 'none';
+    } catch {
+      document.getElementById('viz-auth-loading').style.display = 'none';
+      document.getElementById('viz-auth-error').style.display = 'flex';
+    }
+  }
+
+  initTableauAuth();
+
+  // ── Agent logic ──────────────────────────────────────────────────────────
+
+  // Keyword → filter map
+  const RULES = [
+    // Company filters
+    { test: /\bchase\b/i,                               field: 'Company Short', values: ['Chase'] },
+    { test: /\bally\b/i,                                field: 'Company Short', values: ['Ally'] },
+    { test: /\bcapital\s*one\b/i,                       field: 'Company Short', values: ['Capital One'] },
+    { test: /\b(wells\s*fargo|wells)\b/i,               field: 'Company Short', values: ['Wells Fargo'] },
+    { test: /\bsofi\b/i,                                field: 'Company Short', values: ['SoFi'] },
+
+    // Compound comparisons — must come before individual rules so they resolve first
+    { test: /compare\s+chase\s+ally|compare\s+ally\s+chase/i, field: 'Company Short', values: ['Chase', 'Ally'], overrides: true },
+    { test: /compare\s+chase\s+wells|compare\s+wells\s+chase/i, field: 'Company Short', values: ['Chase', 'Wells Fargo'], overrides: true },
+
+    // Product filters
+    { test: /\bcredit\s*card\b/i,                       field: 'Product', values: ['Credit card', 'Credit card or prepaid card'] },
+    { test: /\b(checking|savings)\b/i,                  field: 'Product', values: ['Checking or savings account', 'Bank account or service'] },
+    { test: /\bmoney\s*transfer\b/i,                    field: 'Product', values: ['Money transfers', 'Prepaid card'] },
+
+    // State
+    { test: /\b(michigan|mi)\b/i,                       field: 'State', values: ['MI'] },
+
+    // Year
+    { test: /\b2024\b/,                                 field: 'Year', values: ['2024'] },
+    { test: /\b2023\b/,                                 field: 'Year', values: ['2023'] },
+    { test: /\b2022\b/,                                 field: 'Year', values: ['2022'] },
+  ];
+
+  const RESET_PATTERN = /\b(reset|show\s+all|clear)\b/i;
+
+  function buildFilterPlan(query) {
+    if (RESET_PATTERN.test(query)) return { reset: true };
+
+    // Collect filters by field (last write wins per field, unless overrides:true)
+    const byField = {};
+
+    // Process overrides first
+    for (const rule of RULES) {
+      if (rule.overrides && rule.test.test(query)) {
+        byField[rule.field] = rule.values;
+      }
+    }
+
+    // Then regular rules (skip fields already set by override)
+    for (const rule of RULES) {
+      if (!rule.overrides && rule.test.test(query)) {
+        if (rule.field in byField) continue;  // already overridden
+        if (!(rule.field in byField)) {
+          byField[rule.field] = [...(byField[rule.field] || []), ...rule.values];
+        }
+      }
+    }
+
+    // Deduplicate values per field
+    for (const f of Object.keys(byField)) {
+      byField[f] = [...new Set(byField[f])];
+    }
+
+    return { filters: byField };
+  }
+
+  function setResponse(type, html) {
+    const el = document.getElementById('agent-response');
+    const icons = {
+      success: `<svg class="response-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+      error:   `<svg class="response-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      info:    `<svg class="response-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+    };
+    el.innerHTML = `<div class="response-inner ${type}">${icons[type] || ''}<span>${html}</span></div>`;
+    el.className = 'visible';
+  }
+
+  function setStatus(text) {
+    document.getElementById('agent-status').textContent = text;
+  }
+
+  async function resetFilters() {
+    try {
+      setStatus('Clearing…');
+      const sheet = await getActiveSheet();
+      if (!sheet) return;
+      const filters = await sheet.getFiltersAsync();
+      for (const f of filters) {
+        await sheet.clearFilterAsync(f.fieldName);
+      }
+      setResponse('info', 'All filters cleared. Showing full dataset.');
+      setStatus('Ready');
+    } catch (e) {
+      setResponse('error', `Could not clear filters: ${e.message}`);
+      setStatus('Error');
+    }
+  }
+
+  async function getActiveSheet() {
+    try {
+      const workbook = viz.workbook;
+      if (!workbook) {
+        setResponse('error', 'Dashboard not yet loaded. Please wait a moment and try again.');
+        setStatus('Not ready');
+        return null;
+      }
+      const sheet = workbook.activeSheet;
+      // If the active sheet is a Dashboard, grab the first worksheet
+      if (sheet.sheetType === 'dashboard') {
+        const worksheets = sheet.worksheets;
+        if (!worksheets || worksheets.length === 0) {
+          setResponse('error', 'No worksheets found in dashboard.');
+          return null;
+        }
+        return worksheets[0];
+      }
+      return sheet;
+    } catch (e) {
+      setResponse('error', `Could not access sheet: ${e.message}`);
+      return null;
+    }
+  }
+
+  async function runQuery(query) {
+    query = query.trim();
+    if (!query) return;
+
+    const plan = buildFilterPlan(query);
+
+    if (plan.reset) {
+      await resetFilters();
+      return;
+    }
+
+    if (!plan.filters || Object.keys(plan.filters).length === 0) {
+      setResponse('info', `No matching filters found for <strong>"${escHtml(query)}"</strong>. Try: "Chase credit cards", "2024", "Wells Fargo checking", or "reset".`);
+      return;
+    }
+
+    setStatus('Applying filters…');
+
+    try {
+      const sheet = await getActiveSheet();
+      if (!sheet) return;
+
+      const applied = [];
+
+      for (const [field, values] of Object.entries(plan.filters)) {
+        await sheet.applyFilterAsync(field, values, 'replace');
+        applied.push(`<strong>${escHtml(field)}</strong>: ${values.map(v => `<em>${escHtml(v)}</em>`).join(', ')}`);
+      }
+
+      setResponse('success', `Applied ${applied.length} filter${applied.length > 1 ? 's' : ''}: ${applied.join(' · ')}`);
+      setStatus('Ready');
+    } catch (e) {
+      setResponse('error', `Filter error: ${e.message}. The dashboard may still be loading or the field name may differ in this workbook.`);
+      setStatus('Error');
+    }
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Event wiring ──────────────────────────────────────────────────────────
+
+  document.getElementById('agent-submit').addEventListener('click', () => {
+    runQuery(document.getElementById('agent-input').value);
+  });
+
+  document.getElementById('agent-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') runQuery(e.target.value);
+  });
+
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const q = chip.dataset.query;
+      document.getElementById('agent-input').value = q;
+      runQuery(q);
+    });
+  });
+
+  // Surface viz first-interactive event
+  viz.addEventListener('firstinteractive', () => {
+    setStatus('Ready');
+  });
+
+  viz.addEventListener('vizloaderror', () => {
+    setStatus('Load error');
+    setResponse('error', 'Dashboard failed to load. Verify the Tableau Cloud URL is correct and you are signed in.');
+  });
+</script>
+
+</body>
+</html>
