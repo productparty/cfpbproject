@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fintech Customer Experience Benchmarking — CFPB Intelligence</title>
-  <script type="module" src="https://embedding.tableauusercontent.com/tableau.embedding.3.latest.min.js"></script>
+  <script type="module" src="https://us-east-1.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -34,6 +34,12 @@
       background: var(--bg);
       color: var(--text-primary);
       -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── Header ─────────────────────────────── */
@@ -158,12 +164,16 @@
 
     /* ── Main layout ─────────────────────────── */
     main {
+      flex: 1;
+      min-height: 0;
       max-width: 1440px;
+      width: 100%;
       margin: 0 auto;
       padding: 24px 32px;
       display: flex;
       flex-direction: column;
       gap: 20px;
+      overflow: hidden;
     }
 
     /* ── Agent search bar ────────────────────── */
@@ -362,7 +372,6 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
-      overflow: hidden;
     }
 
     .viz-toolbar {
@@ -435,15 +444,25 @@
       color: var(--text-primary);
     }
 
+    .viz-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
     .viz-embed-wrap {
+      flex: 1;
+      min-height: 0;
       width: 100%;
-      overflow: hidden;
+      overflow: auto;
       background: #fafafa;
     }
 
     tableau-viz {
       display: block;
       width: 100%;
+      height: 100%;
     }
 
     /* ── Footer ──────────────────────────────── */
@@ -548,12 +567,75 @@
 
     /* ── Responsive ──────────────────────────── */
     @media (max-width: 768px) {
+      html, body {
+        overflow: auto;          /* allow scrolling on mobile */
+        height: auto;
+        min-height: 100%;
+      }
+
+      body {
+        display: block;          /* drop rigid flex column */
+      }
+
       header, .subheader { padding: 0 16px; }
       .subheader { padding-bottom: 12px; }
-      main { padding: 16px; gap: 16px; }
+
+      .subheader-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .subheader-divider { display: none; }
+
+      main {
+        padding: 16px;
+        gap: 16px;
+        overflow: visible;       /* let content flow naturally */
+        min-height: auto;
+        height: auto;
+      }
+
       footer { padding: 16px 16px 24px; }
+
+      .header-title { font-size: 14px; }
       .header-meta { display: none; }
-      .agent-chips .chip:nth-child(n+5) { display: none; }
+
+      /* Agent panel mobile tweaks */
+      .agent-input-row { flex-wrap: wrap; }
+      #agent-input { font-size: 16px; }  /* prevents iOS zoom on focus */
+      #agent-submit { width: 100%; justify-content: center; }
+
+      .agent-chips {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .agent-chips::-webkit-scrollbar { display: none; }
+      .agent-chips .chip { flex-shrink: 0; }
+
+      /* Viz panel: give it a usable height instead of flex-collapsing */
+      .viz-panel {
+        flex: none;
+        min-height: auto;
+      }
+
+      .viz-embed-wrap {
+        min-height: 520px;       /* enough to read the dashboard */
+        height: 70vh;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .viz-toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -677,10 +759,10 @@
       </div>
       <tableau-viz
         id="tableauViz"
-        src="https://us-east-1.online.tableau.com/views/CFPBProject/Dashboard1"
+        src="https://us-east-1.online.tableau.com/t/mwatson1983-cc5dcbbf4e/views/CFPBProject/Dashboard1"
         toolbar="hidden"
         hide-tabs
-        style="width:100%; height:900px; display:none;"
+        style="width:100%; height:100%; display:none;"
       ></tableau-viz>
     </div>
   </div>
@@ -708,7 +790,7 @@
 
   async function initTableauAuth() {
     try {
-      const res = await fetch('https://cfpb.vercel.app/api/tableau-token');
+      const res = await fetch('https://cfpbproject.vercel.app/api/tableau-token');
       if (!res.ok) throw new Error('Server returned ' + res.status);
       const { token } = await res.json();
       viz.setAttribute('token', token);
